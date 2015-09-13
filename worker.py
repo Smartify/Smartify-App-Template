@@ -18,7 +18,7 @@ class SmartifyWorker(WebSocketClient):
         print "socket message received!"
 
         # m always has '#' as its first character
-
+        
         # define deliminters
         parseDelim1 = m.index(' ')
         parseDelim2 = m.index('|')
@@ -54,7 +54,6 @@ class SmartifyWorker(WebSocketClient):
     # this function deletes a process
     def delete_process(process_id):
         global PROCESSES
-
         for i in range(len(PROCESSES)):
             if PROCESSES[i] == process_id:
                 PROCESSES.remove(process_id)
