@@ -5,7 +5,8 @@ import os
 from firebase import firebase
 
 PROCESSES = []
-SOCKET = "ws:///smartify-core.azurewebsites.net:4080/"
+SOCKET = "ws://localhost:4080/"
+# SOCKET = "wss://smartify-core.azurewebsites.net:4080/"
 
 # socket connection is open
 def opened(ws):
@@ -53,12 +54,12 @@ def handle_process(code, job, phone):
 
     # start process if the program isn't already running
     if not process_exist(process_id):
-        start_process(code, job, process_id)
+        start_process(code, job, phone, process_id)
     else:
         print("process already running")
 
 # this function starts a process
-def start_process(code, job, process_id):
+def start_process(code, job, phone, process_id):
     global PROCESSES
     # download the py file
 
@@ -66,22 +67,27 @@ def start_process(code, job, process_id):
     PROCESSES.append(process_id)
 
     # delete old file
-    os.system('rm ' + job[1:])
+    os.system('rm ' + job[1:] + '.py')
 
-    print("updating " + job + " from the Firebase cloud...")
+    print("updating " + job[1:] + ".py from the Firebase cloud...")
 
     db = firebase.FirebaseApplication('https://smartify.firebaseio.com/apps', None)
     result = db.get('/', None)
     source = result['apps'][job[1:]]['code']
-    
+
     app_file = open(job[1:] + '.py', 'w')
     app_file.write(source)
     app_file.close()
+    print('ARG1: "' + code + '"')
+    print('ARG2: "' + job[1:] + '"')
+    print('ARG3: "' + phone + '"')
 
     print("weeee starting a process: " + job)
+    command = '/usr/local/bin/python2.7 ' + job[1:] + '.py ' + code + ' ' + job[1:] + ' ' + phone
+
     # run the application
     try:
-        os.system('python ' + job[1:] + '.py' + code + ' ' + job[1:] + ' ' + phone)
+        os.system(command)
     except:
         pass
 

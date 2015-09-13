@@ -5,7 +5,8 @@ from websocket import create_connection
 
 NUM_FLAG = len(sys.argv)
 FLAGS = sys.argv
-SOCKET = 'wss:///smartify-core.azurewebsites.net:4080/'
+SOCKET = 'ws://localhost:4080/'
+# SOCKET = 'wss://smartify-core.azurewebsites.net:4080/'
 
 class SmartifyApp:
 
@@ -27,9 +28,11 @@ class SmartifyApp:
 			# process_id is not in process_id computed from result (phone, job)
 			while self.process_id != result:
 				data = ws.recv()
-				result = getProcessID(jobName(data), phoneName(data))
-
-				time.sleep(1)
+				print data
+				print self.process_id
+				result = getProcessID(jobName(data)[1:], phoneName(data))
+				print result
+				
 			ws.close()
 		except:
 			return None
@@ -40,13 +43,19 @@ class SmartifyApp:
 	def send_sms(self, msg):
 		newCode = ''
 
-		if self.code = 'f':
+		if self.code == 'f':
 			newCode = 'e'
 		else:
 			newCode = '7'
+		print "code :" + self.code
+		print "job :" + self.job
+		print "phone :" + self.phone
+		print "msg :" + msg
 
 		newMsg = newMessage(newCode, self.job, self.phone, msg)
 		result = self.send_socket_msg(newMsg)
+
+		print "RESULT IS: " + newMsg
 
 		return result
 
