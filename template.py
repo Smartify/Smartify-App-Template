@@ -9,10 +9,11 @@ SOCKET = 'ws://localhost:4080/'
 class SmartifyApp:
 
 	# main program thread constructor
-	def __init__(self, phone, job):
-		self.process_id = '#' + job[:3] + str(abs(hash(phone)))[:4]
+	def __init__(self, code, job, phone):
+		self.process_id = getProcessID(job, phone)
+		self.code = code
 		self.phone = phone
-		self.job = job
+		self.job = '#' + job
 
 	# this method will send user a message, then wait for an input
 	def prompt_user_input(self, msg):
@@ -31,17 +32,21 @@ class SmartifyApp:
 
 	# send raw text output as SMS
 	def send_sms(self, msg):
-		send_mms(msg, None)
+		newCode = ''
+
+		if self.code = 'f':
+			newCode = 'e'
+		else:
+			newCode = '7'
+
+		newMsg = newMessage(newCode, self.job, self.phone, msg)
+		result = self.send_socket_msg(newMsg)
+
+		return result
 
 	# send text and image as MMS
 	def send_mms(self, msg, imgURL):
-		if imgURL == None:
-			imgURL = ""
-
-		socket_msg = self.phone + ' ' + msg + '|' + imgURL
-		result = self.send_socket_msg(socket_msg)
-
-		return result
+		pass
 
 	# sends a message through the websocket
 	def send_socket_msg(self, msg):
@@ -59,9 +64,16 @@ class SmartifyApp:
 		self.send_socket_msg('terminate ' + self.process_id)
 		sys.exit(0)
 
-def main():
-	app = SmartifyApp(FLAGS[0], FLAGS[1])
 
+def getProcessID(job, phone):
+    return '#' + job[:3] + str(abs(hash(phone)))[:4]
+
+def newMessage(newCode, job, phone, body):
+	return newCode + job + ' ' + phone + '|' + body
+
+def main():
+	app = SmartifyApp(FLAGS[0], FLAGS[1], FLAGS[2])
+	# FLAGS = [code, job, phone]
 	# your app code goes here
 
 	app.terminate()
