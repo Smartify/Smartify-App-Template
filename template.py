@@ -5,8 +5,8 @@ from websocket import create_connection
 
 NUM_FLAG = len(sys.argv)
 FLAGS = sys.argv
-SOCKET = 'ws://localhost:4080/'
-# SOCKET = 'wss://smartify-core.azurewebsites.net:4080/'
+# SOCKET = 'ws://localhost:4080/'
+SOCKET = 'wss://smartify-core.azurewebsites.net:4080/'
 
 class SmartifyApp:
 

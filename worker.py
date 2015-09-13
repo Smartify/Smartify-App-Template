@@ -5,8 +5,8 @@ import os
 from firebase import firebase
 
 PROCESSES = []
-SOCKET = "ws://localhost:4080/"
-# SOCKET = "wss://smartify-core.azurewebsites.net:4080/"
+# SOCKET = "ws://localhost:4080/"
+SOCKET = "wss://smartify-core.azurewebsites.net:4080/"
 
 # socket connection is open
 def opened(ws):
