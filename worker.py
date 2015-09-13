@@ -49,7 +49,7 @@ class SmartifyWorker(WebSocketClient):
         global PROCESSES
         PROCESSES.append(process_id)
         # run the application
-        os.system(process_id[1:3] + '.py' + phone + ' ' + job)
+        os.system('python ' + process_id[1:3] + '.py' + phone + ' ' + job)
 
     # this function deletes a process
     def delete_process(process_id):
