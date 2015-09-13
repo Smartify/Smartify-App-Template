@@ -2,6 +2,7 @@ import websocket
 import thread
 import time
 import os
+from firebase import firebase
 
 PROCESSES = []
 SOCKET = "ws://localhost:4080/"
@@ -53,6 +54,8 @@ def handle_process(code, job, phone):
     # start process if the program isn't already running
     if not process_exist(process_id):
         start_process(code, job, process_id)
+    else:
+        print("process already running")
 
 # this function starts a process
 def start_process(code, job, process_id):
@@ -62,9 +65,26 @@ def start_process(code, job, process_id):
 
     PROCESSES.append(process_id)
 
+    # delete old file
+    os.system('rm ' + job[1:])
+
+    print("updating " + job + " from the Firebase cloud...")
+
+    db = firebase.FirebaseApplication('https://smartify.firebaseio.com/apps', None)
+    result = db.get('/', None)
+    source = result['apps'][job[1:]]['code']
+    
+    app_file = open(job[1:] + '.py', 'w')
+    app_file.write(source)
+    app_file.close()
+
     print("weeee starting a process: " + job)
     # run the application
-    os.system('python ' + job + '.py' + code + + ' ' + job[1:] + ' ' + phone)
+    try:
+        os.system('python ' + job[1:] + '.py' + code + ' ' + job[1:] + ' ' + phone)
+    except:
+        pass
+
 
 # this function deletes a process
 def delete_process(process_id):
@@ -77,7 +97,7 @@ def delete_process(process_id):
 # this function checks if a process already exists
 def process_exist(process_id):
     for i in range(len(PROCESSES)):
-        if PROCESSES[i].process_id == process_id:
+        if PROCESSES[i] == process_id:
             return True
 
     # process does not exist
