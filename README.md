@@ -1,0 +1,1 @@
+# Smartify-App-Template
