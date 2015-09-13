@@ -15,10 +15,15 @@ class SmartifyApp:
 		self.job = job
 
 	def prompt_user_input(self, msg):
-		ws = create_connection(SOCKET)
-		ws.send(msg)
-		result = ws.recv()
-		ws.close()
+		try:
+			ws = create_connection(SOCKET)
+			ws.send(msg)
+			result = ''
+			while self.process_id not in result:
+				result = ws.recv()
+			ws.close()
+		except:
+			return None
 
 		return result
 
@@ -26,7 +31,9 @@ class SmartifyApp:
 	def raw_read_input(self):
 		try:
 			ws = create_connection(SOCKET)
-			result = ws.recv()
+			result = ''
+			while self.process_id not in result:
+				result = ws.recv()
 			ws.close()
 		except:
 			return None
@@ -42,7 +49,6 @@ class SmartifyApp:
 		try:
 			ws = create_connection(SOCKET)
 			ws.send(msg)
-			result = ws.recv()
 			ws.close()
 		except:
 			return False
