@@ -1,77 +1,90 @@
-from ws4py.client.threadedclient import WebSocketClient
+import websocket
+import thread
+import time
 import os
 
 PROCESSES = []
 
-class SmartifyWorker(WebSocketClient):
+# socket connection is open
+def opened(ws):
+    print "web socket connection is open!"
 
-    # socket connection is open
-    def opened(self):
-        print "web socket connection is open!"
+    def run(*args):
+        for i in range(3):
+            time.sleep(1)
+        ws.close()
+        print "thread terminating..."
+        thread.start_new_thread(run, ())
 
-    # socket connection is closed
-    def closed(self, code, reason=None):
-        print "socket is closed", code, reason
+# socket connection is closed
+def closed(code, reason=None):
+    print "socket is closed", code, reason
 
-    # a message is received
-    def received_message(self, m):
-        print "socket message received!"
+def on_error(ws, error):
+    print error
 
-        # m always has '#' as its first character
-        
-        # define deliminters
-        parseDelim1 = m.index(' ')
-        parseDelim2 = m.index('|')
+# a message is received
+def received_message(ws, m):
+    print "socket message received!"
 
-        # parse app name and phone number
-        job = m[1:parseDelim1]
-        phone = m[parseDelim1+1:parseDelim2]
+    print m
+    # m always has '#' as its first character
 
-        # terminate program if terminate command
-        if 'terminate' in m:
-            delete_process(m[10:])
-        else:
-            handle_process(job, phone)
+    # define deliminters
+    parseDelim1 = m.index(' ')
+    parseDelim2 = m.index('|')
 
-    # handle the process
-    def handle_process(phone, job):
-        global PROCESSES
+    # parse app name and phone number
+    job = m[1:parseDelim1]
+    phone = m[parseDelim1+1:parseDelim2]
 
-        # compute the process_id
-        process_id = '#' + job[:3] + str(abs(hash(phone)))[:4]
+    # terminate program if terminate command
+    if 'terminate' in m:
+        delete_process(m[10:])
+    else:
+        handle_process(job, phone)
 
-        # start process if the program isn't already running
-        if !process_exist(process_id):
-            start_process(process_id)
+# handle the process
+def handle_process(phone, job):
+    global PROCESSES
 
-    # this function starts a process
-    def start_process(process_id):
-        global PROCESSES
-        PROCESSES.append(process_id)
-        # run the application
-        os.system('python ' + process_id[1:3] + '.py' + phone + ' ' + job)
+    # compute the process_id
+    process_id = '#' + job[:3] + str(abs(hash(phone)))[:4]
 
-    # this function deletes a process
-    def delete_process(process_id):
-        global PROCESSES
-        for i in range(len(PROCESSES)):
-            if PROCESSES[i] == process_id:
-                PROCESSES.remove(process_id)
-                break
+    # start process if the program isn't already running
+    if not process_exist(process_id):
+        start_process(process_id)
 
-    # this function checks if a process already exists
-    def process_exist(process_id):
-        for i in range(len(PROCESSES)):
-            if PROCESSES[i].process_id == process_id:
-                return True
+# this function starts a process
+def start_process(process_id):
+    global PROCESSES
+    PROCESSES.append(process_id)
+    # run the application
+    os.system('python ' + process_id[1:3] + '.py' + phone + ' ' + job)
 
-        # process does not exist
-        return False
+# this function deletes a process
+def delete_process(process_id):
+    global PROCESSES
+    for i in range(len(PROCESSES)):
+        if PROCESSES[i] == process_id:
+            PROCESSES.remove(process_id)
+            break
+
+# this function checks if a process already exists
+def process_exist(process_id):
+    for i in range(len(PROCESSES)):
+        if PROCESSES[i].process_id == process_id:
+            return True
+
+    # process does not exist
+    return False
 
 if __name__ == '__main__':
-    try:
-        ws = SmartifyWorker('ws://localhost:4080/', protocols=['http-only', 'chat'])
-        ws.connect()
-        ws.run_forever()
-    except KeyboardInterrupt:
-        ws.close()
+
+    websocket.enableTrace(True)
+    ws = websocket.WebSocketApp("ws://localhost:4080/",
+    on_message = received_message,
+    on_error = on_error,
+    on_close = closed)
+    ws.on_open = opened
+    ws.run_forever()

@@ -14,24 +14,13 @@ class SmartifyApp:
 		self.phone = phone
 		self.job = job
 
+	# this method will send user a message, then wait for an input
 	def prompt_user_input(self, msg):
 		try:
 			ws = create_connection(SOCKET)
 			ws.send(msg)
 			result = ''
-			while self.process_id not in result:
-				result = ws.recv()
-			ws.close()
-		except:
-			return None
-
-		return result
-
-	# read user input
-	def raw_read_input(self):
-		try:
-			ws = create_connection(SOCKET)
-			result = ''
+			# process_id is not in process_id computed from result (phone, job)
 			while self.process_id not in result:
 				result = ws.recv()
 			ws.close()
@@ -44,17 +33,6 @@ class SmartifyApp:
 	def send_sms(self, msg):
 		send_mms(msg, None)
 
-	# this low-level API sends a message through the websocket
-	def send_socket_msg(self, msg):
-		try:
-			ws = create_connection(SOCKET)
-			ws.send(msg)
-			ws.close()
-		except:
-			return False
-
-		return True
-
 	# send text and image as MMS
 	def send_mms(self, msg, imgURL):
 		if imgURL == None:
@@ -65,6 +43,18 @@ class SmartifyApp:
 
 		return result
 
+	# sends a message through the websocket
+	def send_socket_msg(self, msg):
+		try:
+			ws = create_connection(SOCKET)
+			ws.send(msg)
+			ws.close()
+		except:
+			return False
+
+		return True
+
+	# close the application
 	def terminate(self):
 		self.send_socket_msg('terminate ' + self.process_id)
 		sys.exit(0)
