@@ -3,7 +3,7 @@ import os
 
 PROCESSES = []
 
-class SmartifyApp(WebSocketClient):
+class SmartifyWorker(WebSocketClient):
 
     # socket connection is open
     def opened(self):
@@ -17,6 +17,8 @@ class SmartifyApp(WebSocketClient):
     def received_message(self, m):
         print "socket message received!"
 
+        # m always has '#' as its first character
+
         # define deliminters
         parseDelim1 = m.index(' ')
         parseDelim2 = m.index('|')
@@ -27,7 +29,7 @@ class SmartifyApp(WebSocketClient):
 
         # terminate program if terminate command
         if 'terminate' in m:
-            delete_process(m)
+            delete_process(m[10:])
         else:
             handle_process(job, phone)
 
@@ -46,6 +48,8 @@ class SmartifyApp(WebSocketClient):
     def start_process(process_id):
         global PROCESSES
         PROCESSES.append(process_id)
+        # run the application
+        os.system(process_id[1:3] + '.py' + phone + ' ' + job)
 
     # this function deletes a process
     def delete_process(process_id):
@@ -67,11 +71,8 @@ class SmartifyApp(WebSocketClient):
 
 if __name__ == '__main__':
     try:
-        ws = SmartifyApp('ws://localhost:9000/', protocols=['http-only', 'chat'])
+        ws = SmartifyWorker('ws://localhost:4080/', protocols=['http-only', 'chat'])
         ws.connect()
         ws.run_forever()
     except KeyboardInterrupt:
         ws.close()
-
-
-

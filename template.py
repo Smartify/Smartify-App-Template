@@ -5,17 +5,19 @@ NUM_FLAG = len(sys.argv)
 FLAGS = sys.argv
 
 class SmartifyApp:
+
 	# constructor
 	def __init__(self, phone, job):
 		self.process_id = '#' + job[:3] + str(abs(hash(phone)))[:4]
 		self.phone = phone
 		self.job = job
-		self.socket = 'ws://localhost:4080'
+		self.socket = 'ws://localhost:4080/'
 
 	# read user input
 	def read_input():
 		return self.prompt_input('')
 
+	# this method asks the user a question, then waits for an answer (blocking)
 	def prompt_input(msg):
 		return
 
@@ -23,6 +25,7 @@ class SmartifyApp:
 	def send_sms(self, msg):
 		self.send_mms(msg, None)
 
+	# this low-level API sends a message through the websocket
 	def send_socket_msg(self, msg):
 		ws = create_connection(self.socket)
 		ws.send(msg)
@@ -52,6 +55,12 @@ class SmartifyApp:
 
 		print newProgram.process_id
 
+def main():
+	app = SmartifyApp(FLAGS[0], FLAGS[1])
+
+	# your app code goes here
+
+	app.terminate()
 
 if __name__ == '__main__':
 	main()
