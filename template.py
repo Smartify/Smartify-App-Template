@@ -33,19 +33,16 @@ class SmartifyApp:
 
 	# send text and image as MMS
 	def send_mms(self, msg, imgURL):
-
 		if imgURL == None:
 			imgURL = ""
 
 		socket_msg = self.phone + ' ' + msg + '|' + imgURL
-
 		result = self.send_socket_msg(socket_msg)
 
 		return result
 
 	def terminate(self):
 		self.send_socket_msg('terminate ' + self.process_id)
-
 		sys.exit(0)
 
 	# main program
