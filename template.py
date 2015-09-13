@@ -1,10 +1,11 @@
 import sys
 import threading
+import time
 from websocket import create_connection
 
 NUM_FLAG = len(sys.argv)
 FLAGS = sys.argv
-SOCKET = 'ws://localhost:4080/'
+SOCKET = 'wss:///smartify-core.azurewebsites.net:4080/'
 
 class SmartifyApp:
 
@@ -20,15 +21,20 @@ class SmartifyApp:
 		try:
 			ws = create_connection(SOCKET)
 			ws.send(msg)
+			data = ''
 			result = ''
+
 			# process_id is not in process_id computed from result (phone, job)
-			while self.process_id not in result:
-				result = ws.recv()
+			while self.process_id != result:
+				data = ws.recv()
+				result = getProcessID(jobName(data), phoneName(data))
+
+				time.sleep(1)
 			ws.close()
 		except:
 			return None
 
-		return result
+		return bodyName(data)
 
 	# send raw text output as SMS
 	def send_sms(self, msg):
@@ -64,9 +70,25 @@ class SmartifyApp:
 		self.send_socket_msg('terminate ' + self.process_id)
 		sys.exit(0)
 
+def jobName(message):
+    delim1 = message.index('#')
+    delim2 = message.index(' ')
+    return message[delim1:delim2]
+
+def codeName(message):
+    return message[0:1]
+
+def phoneName(message):
+    delim1 = message.index(' ')
+    delim2 = message.index('|')
+    return message[delim1+1:delim2]
 
 def getProcessID(job, phone):
     return '#' + job[:3] + str(abs(hash(phone)))[:4]
+
+def bodyName(message):
+    delim = message.index('|')
+    return message[delim+1:]
 
 def newMessage(newCode, job, phone, body):
 	return newCode + job + ' ' + phone + '|' + body

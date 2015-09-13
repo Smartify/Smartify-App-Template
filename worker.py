@@ -5,7 +5,7 @@ import os
 from firebase import firebase
 
 PROCESSES = []
-SOCKET = "ws://localhost:4080/"
+SOCKET = "ws:///smartify-core.azurewebsites.net:4080/"
 
 # socket connection is open
 def opened(ws):
@@ -106,7 +106,6 @@ def process_exist(process_id):
 def jobName(message):
     delim1 = message.index('#')
     delim2 = message.index(' ')
-
     return message[delim1:delim2]
 
 def codeName(message):
@@ -115,7 +114,6 @@ def codeName(message):
 def phoneName(message):
     delim1 = message.index(' ')
     delim2 = message.index('|')
-
     return message[delim1+1:delim2]
 
 def bodyName(message):
